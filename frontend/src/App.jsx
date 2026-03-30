@@ -7,11 +7,12 @@ import MetricsBar from './components/MetricsBar'
 import TrendChart from './components/TrendChart'
 import NodeDetail from './components/NodeDetail'
 import ThresholdSlider from './components/ThresholdSlider'
+import HighRiskTable from './components/HighRiskTable'
 
 export default function App() {
   const { snapshot, alerts, metrics, history, connected, updateThreshold, clearAlerts } = useDetector()
   const [selectedNode, setSelectedNode] = useState(null)
-  const [threshold, setThreshold] = useState(0.55)
+  const [threshold, setThreshold] = useState(0.35)
 
   const handleNodeClick = useCallback((nodeId) => {
     const node = snapshot?.nodes?.find(n => n.id === nodeId)
@@ -26,7 +27,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-dark-900 flex flex-col">
       {/* Header */}
-      <header className="border-b border-dark-700 px-6 py-3 flex items-center justify-between bg-dark-800">
+      <header className="border-b border-dark-700 px-6 py-3 flex items-center justify-between bg-dark-800 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Brain size={20} className="text-green-400" />
@@ -45,24 +46,25 @@ export default function App() {
       </header>
 
       {/* Metrics bar */}
-      <div className="px-6 py-3 border-b border-dark-700 bg-dark-800/50">
+      <div className="px-6 py-3 border-b border-dark-700 bg-dark-800/50 flex-shrink-0">
         <MetricsBar snapshot={snapshot} metrics={metrics} connected={connected} />
       </div>
 
       {/* Main content */}
       <div className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 min-h-0">
 
-        {/* Left column: graph + trend */}
+        {/* Left column: graph + threshold + trend */}
         <div className="flex flex-col gap-4 min-h-0">
+
           {/* Graph */}
-          <div className="flex-1 card p-0 overflow-hidden relative min-h-[400px]">
+          <div className="flex-1 card p-0 overflow-hidden relative min-h-[380px]">
             <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
               <span className="text-xs font-semibold text-slate-400 bg-dark-900/80 backdrop-blur px-2 py-1 rounded border border-dark-700">
-                Network Graph · {snapshot?.nodes?.length ?? 0} nodes
+                Network Graph · {snapshot?.nodes?.length ?? 0} nodes · {snapshot?.edges?.length ?? 0} edges
               </span>
               {snapshot?.alerts?.length > 0 && (
                 <span className="text-xs font-semibold text-red-400 bg-red-950/80 backdrop-blur px-2 py-1 rounded border border-red-900 animate-pulse">
-                  {snapshot.alerts.length} ALERT{snapshot.alerts.length > 1 ? 'S' : ''}
+                  ⚠ {snapshot.alerts.length} ALERT{snapshot.alerts.length > 1 ? 'S' : ''}
                 </span>
               )}
             </div>
@@ -72,21 +74,24 @@ export default function App() {
             )}
           </div>
 
-          {/* Threshold + trend */}
-          <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4" style={{ height: 170 }}>
+          {/* Bottom row: threshold + trend */}
+          <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4" style={{ height: 160 }}>
             <ThresholdSlider value={threshold} onChange={handleThresholdChange} />
             <TrendChart history={history} />
           </div>
         </div>
 
-        {/* Right column: alert feed */}
-        <div className="min-h-[400px] lg:min-h-0">
-          <AlertFeed alerts={alerts} onClear={clearAlerts} />
+        {/* Right column: alert feed + high-risk table */}
+        <div className="flex flex-col gap-4 min-h-[400px] lg:min-h-0">
+          <div className="flex-1 min-h-0 overflow-hidden">
+            <AlertFeed alerts={alerts} onClear={clearAlerts} />
+          </div>
+          <HighRiskTable snapshot={snapshot} onNodeClick={handleNodeClick} />
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-dark-700 px-6 py-2 text-xs text-slate-600 flex items-center justify-between">
+      <footer className="border-t border-dark-700 px-6 py-2 text-xs text-slate-600 flex items-center justify-between flex-shrink-0">
         <span>GraphSAGE · PyTorch Geometric · Scapy · Sliding-Window Inference</span>
         <span>Proof-of-concept — not for production use</span>
       </footer>

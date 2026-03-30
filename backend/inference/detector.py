@@ -109,13 +109,17 @@ class BotnetDetector:
         self._model = None
         if TORCH_AVAILABLE:
             self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            self._model = build_model(arch=arch, in_channels=14, hidden_channels=64, num_layers=3).to(self._device)
-            if model_path and os.path.exists(model_path):
-                self._model.load_state_dict(torch.load(model_path, map_location=self._device, weights_only=True))
-                logger.info(f"Loaded model from {model_path}")
-            else:
-                logger.warning("No model checkpoint found – using random weights (for demo). Run training first.")
-            self._model.eval()
+            try:
+                self._model = build_model(arch=arch, in_channels=14, hidden_channels=64, num_layers=3).to(self._device)
+                if model_path and os.path.exists(model_path):
+                    self._model.load_state_dict(torch.load(model_path, map_location=self._device, weights_only=True))
+                    logger.info(f"Loaded model from {model_path}")
+                else:
+                    logger.warning("No model checkpoint found – using random weights (for demo). Run training first.")
+                self._model.eval()
+            except Exception as e:
+                logger.warning(f"GNN model unavailable ({e}) – using heuristic scoring only.")
+                self._model = None
         else:
             logger.warning("PyTorch not available – using heuristic scoring.")
 

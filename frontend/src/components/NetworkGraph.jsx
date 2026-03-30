@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Network } from 'vis-network'
 import { DataSet } from 'vis-data'
 import { scoreToColor } from '../utils/colors'
@@ -37,6 +37,38 @@ const OPTIONS = {
     hideEdgesOnDrag: true,
   },
   layout: { improvedLayout: false },
+}
+
+const LEGEND_ITEMS = [
+  { bg: '#0f2d1a', border: '#22c55e', label: 'Benign' },
+  { bg: '#713f12', border: '#eab308', label: 'Elevated' },
+  { bg: '#7c2d12', border: '#f97316', label: 'Suspicious' },
+  { bg: '#7f1d1d', border: '#ef4444', label: 'Critical' },
+]
+
+function GraphLegend() {
+  return (
+    <div className="absolute bottom-3 right-3 z-10 bg-dark-900/90 backdrop-blur border border-dark-600 rounded-lg px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none">
+      <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider mb-0.5">Node Risk</span>
+      {LEGEND_ITEMS.map(({ bg, border, label }) => (
+        <div key={label} className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full flex-shrink-0"
+            style={{ background: bg, border: `2px solid ${border}`, boxShadow: label === 'Critical' ? `0 0 5px ${border}` : 'none' }} />
+          <span className="text-[11px] text-slate-400">{label}</span>
+        </div>
+      ))}
+      <div className="border-t border-dark-700 mt-1 pt-1.5 flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-0.5 rounded" style={{ background: '#7f1d1d' }} />
+          <span className="text-[10px] text-slate-500">SYN scan edge</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-0.5 rounded" style={{ background: '#1e3a5f' }} />
+          <span className="text-[10px] text-slate-500">Normal flow</span>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function NetworkGraph({ snapshot, onNodeClick }) {
@@ -119,6 +151,9 @@ export default function NetworkGraph({ snapshot, onNodeClick }) {
   }, [snapshot])
 
   return (
-    <div ref={containerRef} className="w-full h-full" style={{ background: '#030712' }} />
+    <div className="relative w-full h-full">
+      <div ref={containerRef} className="w-full h-full" style={{ background: '#030712' }} />
+      <GraphLegend />
+    </div>
   )
 }

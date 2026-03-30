@@ -4,7 +4,7 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
-.env
+# .env # Removed by Orchids to allow .env files
 *.pt
 *.onnx
 

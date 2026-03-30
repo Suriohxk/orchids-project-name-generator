@@ -1,6 +1,6 @@
 {
   "startupCommands": [
-    "cd /home/user/app && python -m backend.api.server",
+    "cd /home/user/app && ALERT_THRESHOLD=0.35 python -m backend.api.server",
     "cd /home/user/app/frontend && npm install && npm run dev -- --host 0.0.0.0"
   ],
   "projectId": "58b08b9a-bfb7-448f-b760-fc83ec1045a5",
